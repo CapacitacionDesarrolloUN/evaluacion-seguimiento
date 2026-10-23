@@ -6,7 +6,8 @@ Es una sola página (`index.html`, sin servidor ni dependencias). **No guarda ni
 
 ## Qué muestra
 
-- Porcentaje de cuestionarios respondidos (respondidos de total) y días que faltan para el cierre.
+- Porcentaje de cuestionarios respondidos (respondidos de total), cuántos faltan, cuántos llegaron hoy y en los últimos 7 días, y los días que faltan para el cierre.
+- Un mapa de cuestionarios: un cuadro por cuestionario, agrupados en un bloque por jefe. Los respondidos se ven en amarillo roble y los pendientes, apagados. Al tocar un bloque se abre ese jefe en la lista.
 - Promedio general, promedio por pregunta y por bloque (Gestión, Servicio, Seguridad y salud en el trabajo), y respuestas por día.
 - Jefes agrupados en Sin iniciar, En curso y Completos, con búsqueda por nombre de jefe o de subordinado.
 - Al abrir un jefe: quién falta por evaluar y quién ya fue evaluado (con fecha y promedio), y al lado del nombre el porcentaje de evaluaciones respondidas.
@@ -34,6 +35,10 @@ Sin datos, el tablero ofrece *Ver datos de ejemplo*, con información inventada.
 ## Configuración
 
 Todo está en el bloque `CONFIG` al inicio del script de `index.html`: fecha de cierre, zona horaria, escala, orígenes de SharePoint permitidos, nombres de las listas, bloques y preguntas, y un texto corto opcional por pregunta (`textos`).
+
+## Diseño
+
+Colores de la marca Uninorte (rojo hondo, rojo, amarillo roble y negro) y tipografías Poppins (títulos y cifras) e Inter (texto), incrustadas en `index.html`: la página no pide nada a Google Fonts ni a otro servidor. Ambas tipografías son de código abierto con licencia SIL OFL 1.1 (Poppins: Indian Type Foundry; Inter: The Inter Project Authors). Hay tema claro y oscuro, y se respeta el movimiento reducido y el contraste forzado.
 
 ## Publicación
 
