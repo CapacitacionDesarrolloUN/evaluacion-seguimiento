@@ -453,11 +453,11 @@ dialog[open]::backdrop{animation:funde .25s ease-out}
 </style>
 </head>
 <body>
-<a class="skip" href="#lista">Ir a la lista de jefes</a>
+<a class="skip" href="#lista">Ir a la lista de líderes</a>
 <header class="top">
   <div class="wrap top-in">
     <div class="logo" role="img" aria-label="Universidad del Norte"></div>
-    <div class="ttl"><h1>Evaluación de desempeño</h1><p>Seguimiento de los cuestionarios diligenciados por los jefes</p></div>
+    <div class="ttl"><h1>Evaluación de desempeño</h1><p>Seguimiento de los cuestionarios diligenciados por los líderes de departamento</p></div>
     <div class="acts">
       <button class="btn amarillo" id="btnActualizar" type="button" hidden>
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.6-5.9"/><path d="M20 4v5h-5"/></svg>
@@ -504,7 +504,7 @@ const CONFIG = {
     G1: "Calidad de los documentos",
     G2: "Eficacia en las tareas asignadas",
     G3: "Uso de recursos y del tiempo",
-    G4: "Se anticipa a lo que pide el jefe",
+    G4: "Se anticipa a lo que pide su líder",
     G5: "Gestión en sistemas de información",
     S1: "Atención de llamadas y correos",
     S2: "Atención presencial",
@@ -906,7 +906,7 @@ function pintar(){
 function bienvenida(){
   return h('section', { class: 'bienvenida' },
     h('h2', { text: 'Carga las listas de SharePoint para ver el avance' }),
-    h('p', { text: 'Necesito dos listas: Relaciones (quién evalúa a quién) y Respuestas (lo que ya se diligenció). Con eso muestro el porcentaje respondido, los jefes que faltan y el detalle de cada uno.' }),
+    h('p', { text: 'Necesito dos listas: Relaciones (quién evalúa a quién) y Respuestas (lo que ya se diligenció). Con eso muestro el porcentaje respondido, los líderes que faltan y el detalle de cada uno.' }),
     cargador());
 }
 
@@ -976,13 +976,13 @@ function heroBloque(D){
   const hoyN = D.dias.get(hoy) || 0; let sem = 0; for (let i = 0; i < 7; i++) sem += D.dias.get(sumaDias(hoy, -i)) || 0;
   const pct = pctTexto(D.hechas, D.total), totalJ = D.jefes.length;
 
-  const estados = h('div', { class: 'jefes-estado', role: 'group', 'aria-label': 'Jefes por estado' });
+  const estados = h('div', { class: 'jefes-estado', role: 'group', 'aria-label': 'Líderes por estado' });
   ORDEN_ESTADO.forEach(k => {
     const n = D.porEstado[k];
-    const b = h('button', { type: 'button', 'aria-label': `${ETIQ[k]}: ${n} jefes (${pctTexto(n, totalJ)}%). Ver la lista`,
+    const b = h('button', { type: 'button', 'aria-label': `${ETIQ[k]}: ${n} líderes (${pctTexto(n, totalJ)}%). Ver la lista`,
       onclick: () => { S.por = 'lider'; S.filtro = k; S.mostrar = 50; pintarLista(); $('#lista').scrollIntoView({ behavior: 'smooth', block: 'start' }); } },
       icono(k), h('span', { text: ETIQ[k] }), h('span', { class: 'n', text: nf0.format(n) }));
-    tip(b, () => [`${nf0.format(n)} jefes`, `${ETIQ[k]} · ${pctTexto(n, totalJ)}% de los jefes`]);
+    tip(b, () => [`${nf0.format(n)} líderes`, `${ETIQ[k]} · ${pctTexto(n, totalJ)}% de los líderes`]);
     estados.append(b);
   });
 
@@ -994,14 +994,14 @@ function heroBloque(D){
       h('div', {}, h('b', { text: nf0.format(D.total - D.hechas) }), h('span', { text: 'Faltan' })),
       h('div', {}, h('b', { text: nf0.format(hoyN) }), h('span', { text: 'Hoy' })),
       h('div', {}, h('b', { text: nf0.format(sem) }), h('span', { text: 'Últimos 7 días' }))),
-    h('div', { class: 'jefes' }, h('p', { class: 'etq', text: `Jefes (${nf0.format(totalJ)})` }), estados));
+    h('div', { class: 'jefes' }, h('p', { class: 'etq', text: `Líderes de departamento (${nf0.format(totalJ)})` }), estados));
 
   const mapa = h('section', { class: 'mapa', 'aria-label': 'Mapa de cuestionarios' },
     h('div', { class: 'mapa-cab' }, h('h2', { text: 'Mapa de cuestionarios' }),
       h('div', { class: 'clave', 'aria-hidden': 'true' }, h('span', { class: 'si' }, h('i'), 'Respondido'), h('span', { class: 'no' }, h('i'), 'Pendiente'))),
-    h('p', { class: 'sr', text: `${nf0.format(D.hechas)} de ${nf0.format(D.total)} cuestionarios respondidos, repartidos entre ${nf0.format(totalJ)} jefes. El detalle de cada jefe está en la lista de más abajo.` }),
+    h('p', { class: 'sr', text: `${nf0.format(D.hechas)} de ${nf0.format(D.total)} cuestionarios respondidos, repartidos entre ${nf0.format(totalJ)} líderes de departamento. El detalle de cada líder está en la lista de más abajo.` }),
     h('div', { class: 'mosaico', id: 'mosaico', 'aria-hidden': 'true' }),
-    h('p', { class: 'mapa-pie', text: 'Cada cuadro es un cuestionario y cada bloque, el equipo de un jefe. Toca un bloque para ver el resumen de ese jefe.' }));
+    h('p', { class: 'mapa-pie', text: 'Cada cuadro es un cuestionario y cada bloque, el equipo de un líder de departamento. Toca un bloque para ver su resumen.' }));
 
   return h('div', { class: 'hero resumen' }, izq, mapa);
 }
@@ -1079,7 +1079,7 @@ function filaSubordinado(i, conJefe = true){
   const hecho = !!i.resp;
   const li = h('li', {}, h('div', { class: 'fsub' + (hecho ? ' clic' : '') },
     h('span', { class: 'fsub-q' },
-      h('span', { class: 'fsub-nom' }, h('b', { text: i.sub }), conJefe ? h('span', { class: 'jefe-al', text: `Jefe: ${i.jefe.nombre}` }) : null),
+      h('span', { class: 'fsub-nom' }, h('b', { text: i.sub }), conJefe ? h('span', { class: 'jefe-al', text: `Líder: ${i.jefe.nombre}` }) : null),
       h('span', { class: 'cargo', text: i.cargo })),
     h('span', { class: 'res' }, hecho
       ? [i.resp.ts != null ? fmtDiaHora.format(new Date(i.resp.ts)) : 'Respondida', i.resp.prom != null ? [' · ', h('strong', { text: nf2.format(i.resp.prom) })] : null, h('span', { class: 'ver', text: 'Ver respuesta ›' })]
@@ -1127,7 +1127,7 @@ function filtrar(D){
 }
 
 function cuerpo(D){
-  const tabs = h('div', { class: 'tabs', role: 'group', 'aria-label': 'Filtrar jefes por estado', id: 'tabs' });
+  const tabs = h('div', { class: 'tabs', role: 'group', 'aria-label': 'Filtrar líderes por estado', id: 'tabs' });
   const buscar = h('label', { class: 'buscar' }, h('span', { class: 'sr', text: 'Buscar por nombre' }),
     h('input', { type: 'search', id: 'q', autocomplete: 'off', value: S.q }));
   const seg = h('div', { class: 'seg', role: 'group', 'aria-label': 'Buscar por' }, h('span', { text: 'Buscar por' }), h('div', { class: 'seg-in' },
@@ -1141,8 +1141,8 @@ function cuerpo(D){
   sel.addEventListener('change', () => { S.orden = sel.value; S.mostrar = 50; pintarLista(); });
 
   const izq = h('div', { class: 'col' },
-    h('h2', { class: 'grande', id: 'lista', tabindex: '-1', text: 'Avance por jefe' }),
-    h('p', { class: 'nota', style: 'margin:0 0 14px', text: 'Abre un jefe para ver a quién le falta evaluar. El porcentaje junto al nombre es lo ya respondido de su equipo.' }),
+    h('h2', { class: 'grande', id: 'lista', tabindex: '-1', text: 'Avance por líder de departamento' }),
+    h('p', { class: 'nota', style: 'margin:0 0 14px', text: 'Abre un líder para ver a quién le falta evaluar. El porcentaje junto al nombre es lo ya respondido de su equipo.' }),
     h('div', { class: 'panel' },
       h('div', { class: 'herram' }, tabs, h('div', { class: 'fila-h' }, seg, buscar, sel)),
       h('div', { class: 'conteo', id: 'conteo', 'aria-live': 'polite' }),
@@ -1163,10 +1163,10 @@ function pintarLista(){
   const ul = $('#ul'); ul.replaceChildren();
   ul.className = 'lista' + (['sin', 'curso', 'ok'].includes(S.filtro) ? ' uno' : '') + (S.listaAnim ? ' anima' : ''); S.listaAnim = false;
   const pend = lista.reduce((a, j) => a + j.pend, 0);
-  $('#conteo').replaceChildren(h('span', { text: `Mostrando ${nf0.format(lista.length)} de ${nf0.format(D.jefes.length)} jefes · ${nf0.format(pend)} cuestionarios pendientes` }),
+  $('#conteo').replaceChildren(h('span', { text: `Mostrando ${nf0.format(lista.length)} de ${nf0.format(D.jefes.length)} líderes · ${nf0.format(pend)} cuestionarios pendientes` }),
     h('span', { class: 'acc' }, h('button', { class: 'lnk', type: 'button', disabled: !lista.length, onclick: copiarNombres, text: 'Copiar nombres' }), h('button', { class: 'lnk', type: 'button', disabled: !lista.length, onclick: descargarCSV, text: 'Descargar CSV' })));
   if (!lista.length){
-    ul.append(h('li', { class: 'vacio', text: S.q ? 'Nadie coincide con esa búsqueda.' : (S.filtro === 'faltan' ? 'No falta ningún jefe por responder.' : 'No hay jefes en este grupo.') }));
+    ul.append(h('li', { class: 'vacio', text: S.q ? 'Nadie coincide con esa búsqueda.' : (S.filtro === 'faltan' ? 'No falta ningún líder por responder.' : 'No hay líderes en este grupo.') }));
     return;
   }
   const frag = document.createDocumentFragment();
@@ -1208,7 +1208,7 @@ function csvCampo(v){ const s = String(v ?? ''); return /[";\n\r]/.test(s) ? '"'
 function descargarCSV(){
   if (S.por === 'sub'){
     const l = filtrarSub(S.datos);
-    const f = [['Técnico o auxiliar', 'Cargo', 'Jefe', 'Estado', 'Promedio']];
+    const f = [['Técnico o auxiliar', 'Cargo', 'Líder de departamento', 'Estado', 'Promedio']];
     l.forEach(i => f.push([i.sub, i.cargo, i.jefe.nombre, i.resp ? 'Evaluado' : 'Pendiente', i.resp && i.resp.prom != null ? nf2.format(i.resp.prom) : '']));
     const b = new Blob(['\uFEFF' + f.map(x => x.map(csvCampo).join(';')).join('\r\n')], { type: 'text/csv;charset=utf-8' });
     const a = h('a', { href: URL.createObjectURL(b), download: `tecnicos-auxiliares-${S.filtroSub}-${hoyBogota()}.csv` });
@@ -1216,12 +1216,12 @@ function descargarCSV(){
     aviso(`CSV con ${l.length} personas descargado.`); return;
   }
   const lista = filtrar(S.datos);
-  const filas = [['Jefe', 'Estado', 'Respondidas', 'Total', 'Porcentaje', 'Falta por evaluar']];
+  const filas = [['Líder de departamento', 'Estado', 'Respondidas', 'Total', 'Porcentaje', 'Falta por evaluar']];
   lista.forEach(j => filas.push([j.nombre, ETIQ[j.estado], j.hechas, j.total, pctTexto(j.hechas, j.total) + '%', j.items.filter(i => !i.resp).map(i => i.sub).join(' / ')]));
   const blob = new Blob(['﻿' + filas.map(f => f.map(csvCampo).join(';')).join('\r\n')], { type: 'text/csv;charset=utf-8' });
-  const a = h('a', { href: URL.createObjectURL(blob), download: `jefes-${S.filtro}-${hoyBogota()}.csv` });
+  const a = h('a', { href: URL.createObjectURL(blob), download: `lideres-${S.filtro}-${hoyBogota()}.csv` });
   document.body.append(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 2000);
-  aviso(`CSV con ${lista.length} jefes descargado.`);
+  aviso(`CSV con ${lista.length} líderes descargado.`);
 }
 async function copiarNombres(){
   const txt = (S.por === 'sub' ? filtrarSub(S.datos).map(i => i.sub) : filtrar(S.datos).map(j => j.nombre)).join('\n');
@@ -1330,10 +1330,10 @@ let rzT; window.addEventListener('resize', () => { clearTimeout(rzT); rzT = setT
 /* ---------- Revisión de datos ---------- */
 function revision(D){
   const avisos = [];
-  if (D.huerfanas.length) avisos.push(['Respuestas que no coinciden con ninguna relación jefe–subordinado (no cuentan en el avance ni en el promedio):', D.huerfanas.slice(0, 8).map(r => `${bonito(r.jefe)} → ${bonito(r.sub)}`), D.huerfanas.length > 8 ? `…y ${D.huerfanas.length - 8} más` : null]);
-  if (D.repetidas) avisos.push([`${D.repetidas} cuestionario(s) repetido(s) para el mismo jefe y subordinado. Se cuenta solo el más reciente.`, [], null]);
+  if (D.huerfanas.length) avisos.push(['Respuestas que no coinciden con ninguna relación líder–subordinado (no cuentan en el avance ni en el promedio):', D.huerfanas.slice(0, 8).map(r => `${bonito(r.jefe)} → ${bonito(r.sub)}`), D.huerfanas.length > 8 ? `…y ${D.huerfanas.length - 8} más` : null]);
+  if (D.repetidas) avisos.push([`${D.repetidas} cuestionario(s) repetido(s) para el mismo líder y subordinado. Se cuenta solo el más reciente.`, [], null]);
   if (D.relRepetidas) avisos.push([`${D.relRepetidas} relación(es) repetida(s) en la lista Relaciones. Se cuentan una sola vez.`, [], null]);
-  if (S.descartadas) avisos.push([`${S.descartadas} fila(s) de Respuestas sin jefe o subordinado, descartadas.`, [], null]);
+  if (S.descartadas) avisos.push([`${S.descartadas} fila(s) de Respuestas sin líder o subordinado, descartadas.`, [], null]);
   if (!avisos.length) return h('div', {});
   const det = h('details', { class: 'calidad' }, h('summary', { text: `Revisión de datos (${avisos.length} ${avisos.length === 1 ? 'aviso' : 'avisos'})` }));
   const c = h('div', { class: 'cuerpo-q' });
@@ -1545,10 +1545,10 @@ function verResumenJefe(j){
       h('div', {}, h('span', { text: 'Promedio del equipo' }), h('b', { text: fm(media(proms)) })),
       h('div', {}, h('span', { text: 'Faltan' }), h('b', { text: nf0.format(j.pend) }))),
     hechos.length ? h('div', { class: 'res-num' }, CONFIG.bloques.map(b => h('div', { class: 'bq-n' }, h('span', { text: b.nombre }), h('b', { text: fm(media(hechos.flatMap(i => b.preguntas.map(p => i.resp.q[p])))) })))) : null,
-    hechos.length ? [h('h3', { text: 'Promedio del equipo por pregunta' }), linea] : h('p', { class: 'nota', text: 'Este jefe aún no ha respondido ningún cuestionario.' }),
+    hechos.length ? [h('h3', { text: 'Promedio del equipo por pregunta' }), linea] : h('p', { class: 'nota', text: 'Este líder aún no ha respondido ningún cuestionario.' }),
     pend.length ? [h('h3', { text: `Falta por evaluar (${pend.length})` }), h('ul', { class: 'lista' }, pend.map(i => filaSubordinado(i, false)))] : null,
     hechos.length ? [h('h3', { text: `Ya evaluados (${hechos.length}), de mayor a menor promedio` }), h('ul', { class: 'lista' }, hechos.map(i => filaSubordinado(i, false)))] : null,
-    h('div', { class: 'res-acc' }, h('button', { class: 'btn line', type: 'button', text: 'Ver en la lista de jefes', onclick: () => { dlg.close(); abrirJefe(j); } }))
+    h('div', { class: 'res-acc' }, h('button', { class: 'btn line', type: 'button', text: 'Ver en la lista de líderes', onclick: () => { dlg.close(); abrirJefe(j); } }))
   ].flat(Infinity).filter(Boolean));
   if (!dlg.open) dlg.showModal();
   dlg.scrollTop = 0;
