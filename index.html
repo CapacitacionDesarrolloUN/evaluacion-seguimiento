@@ -373,7 +373,25 @@ dialog[open]::backdrop{animation:funde .25s ease-out}
 .pie-preg{display:flex;flex-wrap:wrap;gap:2px 18px;margin-top:12px}
 .preg{padding-block:3px}
 .preg .txt{grid-column:2/4;font-size:12.5px;line-height:1.2;color:var(--muted);margin-top:-5px}
-#dlgR{max-width:min(860px,calc(100% - 28px))}
+#dlgR,#dlgJ{max-width:min(860px,calc(100% - 28px))}
+#dlgJ .dlg-cab{align-items:flex-start;gap:14px}
+.res-num{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin:0 0 14px}
+.res-num div{background:var(--surface);border-radius:14px;padding:12px 14px}
+.res-num span{display:block;color:var(--muted);font-size:13px;font-weight:600}
+.res-num b{font:800 28px/1.15 var(--f-display);font-variant-numeric:tabular-nums}
+.res-num .bq-n b{font-size:22px}
+#dlgJ h3{margin:18px 0 4px;font:800 15.5px/1.3 var(--f-display);color:var(--rojo-hondo)}
+#dlgJ .lista{background:var(--surface);border-radius:14px;overflow:hidden}
+.res-acc{margin-top:16px;text-align:right}
+:root[data-theme="dark"] :is(#dlgJ h3,.cq-b h3,.glos h3){color:var(--roble)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) :is(#dlgJ h3,.cq-b h3,.glos h3){color:var(--roble)}}
+#arriba{position:fixed;right:22px;bottom:22px;z-index:60;width:50px;height:50px;border:0;border-radius:50%;display:grid;place-items:center;background:var(--rojo-hondo);color:#fff;cursor:pointer;box-shadow:0 12px 26px -10px rgba(50,10,15,.7);opacity:0;visibility:hidden;transform:translateY(14px) scale(.85);transition:opacity .25s ease,transform .25s cubic-bezier(.2,.8,.25,1),visibility .25s,background .2s ease}
+#arriba.on{opacity:1;visibility:visible;transform:none}
+#arriba.on:hover{transform:translateY(-3px);background:var(--banda)}
+#arriba.on:active{transform:scale(.94)}
+#arriba svg{width:24px;height:24px}
+@media print{#arriba{display:none}}
+@media (max-width:640px){#arriba{right:14px;bottom:14px;width:46px;height:46px}}
 #dlgR .dlg-cab{align-items:flex-start;gap:14px}
 .resp-meta{margin:-8px 0 14px;color:var(--muted)}
 .resp-top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:12px}
@@ -457,6 +475,8 @@ dialog[open]::backdrop{animation:funde .25s ease-out}
 <footer class="wrap pie" id="pie"></footer>
 <dialog id="dlg" aria-labelledby="dlgTit"><div class="dlg-cab"><h2 id="dlgTit">Actualizar datos</h2><button class="btn line" id="dlgCerrar" type="button">Cerrar</button></div><div id="dlgCuerpo"></div></dialog>
 <dialog id="dlgR" aria-labelledby="dlgRTit"><div class="dlg-cab"><h2 id="dlgRTit"></h2><button class="btn line" id="dlgRCerrar" type="button">Cerrar</button></div><div id="dlgRCuerpo"></div></dialog>
+<dialog id="dlgJ" aria-labelledby="dlgJTit"><div class="dlg-cab"><h2 id="dlgJTit"></h2><button class="btn line" id="dlgJCerrar" type="button">Cerrar</button></div><div id="dlgJCuerpo"></div></dialog>
+<button id="arriba" type="button" aria-label="Volver arriba" title="Volver arriba"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M5.500 11.500 12 5l6.500 6.500"/></svg></button>
 <div id="tip" role="tooltip"></div>
 <div id="toast" role="status" aria-live="polite"></div>
 
@@ -583,7 +603,7 @@ const sumaDias = (d, n) => new Date(Date.parse(d + 'T00:00:00Z') + n * 864e5).to
 
 let toastT;
 function aviso(txt){
-  const t = $('#toast'); t.textContent = txt; t.classList.add('on');
+  const t = $('#toast'); ($('#dlgR[open]') || $('dialog[open]') || document.body).append(t); t.textContent = txt; t.classList.add('on');
   clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('on'), 4200);
 }
 
@@ -981,7 +1001,7 @@ function heroBloque(D){
       h('div', { class: 'clave', 'aria-hidden': 'true' }, h('span', { class: 'si' }, h('i'), 'Respondido'), h('span', { class: 'no' }, h('i'), 'Pendiente'))),
     h('p', { class: 'sr', text: `${nf0.format(D.hechas)} de ${nf0.format(D.total)} cuestionarios respondidos, repartidos entre ${nf0.format(totalJ)} jefes. El detalle de cada jefe está en la lista de más abajo.` }),
     h('div', { class: 'mosaico', id: 'mosaico', 'aria-hidden': 'true' }),
-    h('p', { class: 'mapa-pie', text: 'Cada cuadro es un cuestionario y cada bloque, el equipo de un jefe. Toca un bloque para ver a ese jefe en la lista.' }));
+    h('p', { class: 'mapa-pie', text: 'Cada cuadro es un cuestionario y cada bloque, el equipo de un jefe. Toca un bloque para ver el resumen de ese jefe.' }));
 
   return h('div', { class: 'hero resumen' }, izq, mapa);
 }
@@ -1001,7 +1021,7 @@ function dibujarMosaico(cont, D){
     const eq = h('div', { class: 'eq', style: `--cols:${cols}`, 'data-key': j.key });
     for (let i = 0; i < j.total; i++) eq.append(h('i', { class: i < j.hechas ? 'h' : null, style: `--k:${(bi * paso + i * .35).toFixed(2)}` }));
     tip(eq, () => [j.nombre, `${j.hechas} de ${j.total} respondidos · ${ETIQ[j.estado]}`]);
-    eq.addEventListener('click', () => abrirJefe(j));
+    eq.addEventListener('click', () => verResumenJefe(j));
     frag.append(eq);
   });
   cont.replaceChildren(frag);
@@ -1055,11 +1075,11 @@ function sincronizarBusqueda(){
   const q = $('#q'); if (q) q.placeholder = sub ? 'Escribe nombre y apellido del técnico o auxiliar' : 'Escribe nombre y apellido del líder';
   const o = $('#orden'); if (o) o.hidden = sub;
 }
-function filaSubordinado(i){
+function filaSubordinado(i, conJefe = true){
   const hecho = !!i.resp;
   const li = h('li', {}, h('div', { class: 'fsub' + (hecho ? ' clic' : '') },
     h('span', { class: 'fsub-q' },
-      h('span', { class: 'fsub-nom' }, h('b', { text: i.sub }), h('span', { class: 'jefe-al', text: `Jefe: ${i.jefe.nombre}` })),
+      h('span', { class: 'fsub-nom' }, h('b', { text: i.sub }), conJefe ? h('span', { class: 'jefe-al', text: `Jefe: ${i.jefe.nombre}` }) : null),
       h('span', { class: 'cargo', text: i.cargo })),
     h('span', { class: 'res' }, hecho
       ? [i.resp.ts != null ? fmtDiaHora.format(new Date(i.resp.ts)) : 'Respondida', i.resp.prom != null ? [' · ', h('strong', { text: nf2.format(i.resp.prom) })] : null, h('span', { class: 'ver', text: 'Ver respuesta ›' })]
@@ -1082,7 +1102,7 @@ function pintarListaSub(D){
   $('#conteo').replaceChildren(h('span', { text: `Mostrando ${nf0.format(lista.length)} de ${nf0.format(todos.length)} técnicos o auxiliares` }),
     h('span', { class: 'acc' }, h('button', { class: 'lnk', type: 'button', disabled: !lista.length, onclick: copiarNombres, text: 'Copiar nombres' }), h('button', { class: 'lnk', type: 'button', disabled: !lista.length, onclick: descargarCSV, text: 'Descargar CSV' })));
   if (!lista.length){ ul.append(h('li', { class: 'vacio', text: S.q ? 'Nadie coincide con esa búsqueda.' : 'No hay personas en este grupo.' })); return; }
-  ul.append(...lista.slice(0, S.mostrar).map(filaSubordinado));
+  ul.append(...lista.slice(0, S.mostrar).map(i => filaSubordinado(i)));
   if (lista.length > S.mostrar){
     const quedan = lista.length - S.mostrar;
     ul.append(h('li', { class: 'mas' }, h('button', { class: 'btn line', type: 'button', text: `Mostrar ${Math.min(50, quedan)} más (quedan ${nf0.format(quedan)})`, onclick: () => { S.mostrar += 50; pintarLista(); } })));
@@ -1506,6 +1526,35 @@ function seccionPreguntas(D){
       h('dl', {}, b.preguntas.map(p => h('div', {}, h('dt', { text: p }), h('dd', {}, h('b', { text: CONFIG.textos[p] }), CONFIG.completas[p]))))))));
 }
 
+/* ---------- Resumen de un jefe (al tocar su bloque en el mapa) ---------- */
+function verResumenJefe(j){
+  TIP.classList.remove('on');
+  const D = S.datos, dlg = $('#dlgJ');
+  const hechos = j.items.filter(i => i.resp).sort((a, b) => (b.resp.prom ?? -1) - (a.resp.prom ?? -1) || a.sub.localeCompare(b.sub, 'es'));
+  const pend = j.items.filter(i => !i.resp);
+  const proms = hechos.map(i => i.resp.prom).filter(v => v != null);
+  const media = vs => { const l = vs.filter(v => v != null); return l.length ? mediaDe(l) : null; };
+  const porPregunta = Object.fromEntries(PREGUNTAS.map(p => [p, media(hechos.map(i => i.resp.q[p]))]));
+  const fm = v => v == null ? '—' : nf2.format(v);
+  const linea = h('div', { class: 'linea' });
+  $('#dlgJTit').textContent = j.nombre;
+  $('#dlgJCuerpo').replaceChildren(...[
+    h('p', { class: 'resp-meta', text: `${ETIQ[j.estado]} · ${nf0.format(j.hechas)} de ${nf0.format(j.total)} cuestionarios respondidos` }),
+    h('div', { class: 'res-num' },
+      h('div', {}, h('span', { text: 'Avance' }), h('b', { text: pctTexto(j.hechas, j.total) + '%' })),
+      h('div', {}, h('span', { text: 'Promedio del equipo' }), h('b', { text: fm(media(proms)) })),
+      h('div', {}, h('span', { text: 'Faltan' }), h('b', { text: nf0.format(j.pend) }))),
+    hechos.length ? h('div', { class: 'res-num' }, CONFIG.bloques.map(b => h('div', { class: 'bq-n' }, h('span', { text: b.nombre }), h('b', { text: fm(media(hechos.flatMap(i => b.preguntas.map(p => i.resp.q[p])))) })))) : null,
+    hechos.length ? [h('h3', { text: 'Promedio del equipo por pregunta' }), linea] : h('p', { class: 'nota', text: 'Este jefe aún no ha respondido ningún cuestionario.' }),
+    pend.length ? [h('h3', { text: `Falta por evaluar (${pend.length})` }), h('ul', { class: 'lista' }, pend.map(i => filaSubordinado(i, false)))] : null,
+    hechos.length ? [h('h3', { text: `Ya evaluados (${hechos.length}), de mayor a menor promedio` }), h('ul', { class: 'lista' }, hechos.map(i => filaSubordinado(i, false)))] : null,
+    h('div', { class: 'res-acc' }, h('button', { class: 'btn line', type: 'button', text: 'Ver en la lista de jefes', onclick: () => { dlg.close(); abrirJefe(j); } }))
+  ].flat(Infinity).filter(Boolean));
+  if (!dlg.open) dlg.showModal();
+  dlg.scrollTop = 0;
+  if (hechos.length) dibujarLinea(linea, porPregunta, D.escala, true);
+}
+
 /* ---------- Respuesta de una persona ---------- */
 function verRespuesta(it){
   const D = S.datos, r = it.resp, dlg = $('#dlgR');
@@ -1644,6 +1693,7 @@ function descargarPDF(it){
 const TIP = $('#tip');
 function tip(el, fn){
   const mostrar = (x, y) => {
+    (el.closest('dialog') || document.body).append(TIP);
     const [a, b] = fn(); TIP.replaceChildren(h('strong', { text: a }), document.createTextNode(b)); TIP.classList.add('on');
     const r = TIP.getBoundingClientRect(); let px = x + 14, py = y + 16;
     if (px + r.width > innerWidth - 8) px = x - r.width - 14; if (py + r.height > innerHeight - 8) py = y - r.height - 12;
@@ -1665,6 +1715,12 @@ $('#btnTema').addEventListener('click', () => {
 $('#btnActualizar').addEventListener('click', abrirDialogo);
 $('#dlgCerrar').addEventListener('click', cerrarDialogo);
 $('#dlgRCerrar').addEventListener('click', () => $('#dlgR').close());
+$('#dlgJCerrar').addEventListener('click', () => $('#dlgJ').close());
+$('#dlgJ').addEventListener('click', e => { if (e.target === $('#dlgJ')) $('#dlgJ').close(); });
+const btnArriba = $('#arriba');
+const revisarArriba = () => btnArriba.classList.toggle('on', scrollY > 350);
+addEventListener('scroll', revisarArriba, { passive: true }); revisarArriba();
+btnArriba.addEventListener('click', () => { scrollTo({ top: 0, behavior: reduceMov() ? 'auto' : 'smooth' }); });
 $('#dlgR').addEventListener('click', e => { if (e.target === $('#dlgR')) $('#dlgR').close(); });
 
 /* ---------- Arranque ---------- */
