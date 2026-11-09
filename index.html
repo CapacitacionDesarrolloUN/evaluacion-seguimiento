@@ -303,7 +303,18 @@ dialog[open]::backdrop{animation:funde .25s ease-out}
 .seg-in button[aria-pressed="true"]{background:var(--rojo-hondo);color:#fff}
 .sub.clic{cursor:pointer;border-radius:8px;transition:background .2s ease;margin-inline:-8px;padding-inline:8px}
 .sub.clic:hover{background:var(--realce)}
-.sub.coincide b{background:var(--realce);box-shadow:0 0 0 3px var(--realce);border-radius:3px}
+.fsub{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 16px;align-items:center;padding:12px 16px;transition:background .2s ease}
+.fsub.clic{cursor:pointer}.fsub.clic:hover{background:var(--realce)}
+.fsub-q{min-width:0}
+.fsub-nom{display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 12px}
+.fsub-nom b{font-weight:700;overflow-wrap:anywhere}
+.jefe-al{color:var(--rojo-hondo);font-size:14px;font-weight:600}
+:root[data-theme="dark"] .jefe-al{color:var(--roble)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .jefe-al{color:var(--roble)}}
+.fsub .cargo{display:block;color:var(--muted);font-size:14px}
+.fsub .res{text-align:right;font-size:14px;color:var(--muted);font-variant-numeric:tabular-nums}
+.fsub .res strong{color:var(--fg);font-weight:600}
+@media (max-width:640px){.fsub{grid-template-columns:minmax(0,1fr)}.fsub .res{text-align:left}}
 .ver{display:block;color:var(--rojo-hondo);font-weight:700;font-size:13.5px}
 :root[data-theme="dark"] .ver{color:var(--roble)}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .ver{color:var(--roble)}}
@@ -740,7 +751,7 @@ function calcular(rel, res){
    Estado y carga de datos
    ========================================================================== */
 const S = { rel: null, res: null, ejemplo: false, datos: null, cargadoEn: null,
-            filtro: 'todos', por: 'lider', orden: 'pendientes', q: '', seccion: null, rkOrden: 'mejor', rkMostrar: 30, grafica: 'todos', listaAnim: false, abiertos: new Set(), mostrar: 50, tablaPreg: false, tablaDias: false, descartadas: 0 };
+            filtro: 'todos', por: 'lider', orden: 'pendientes', q: '', filtroSub: 'todos', seccion: null, rkOrden: 'mejor', rkMostrar: 30, grafica: 'todos', listaAnim: false, abiertos: new Set(), mostrar: 50, tablaPreg: false, tablaDias: false, descartadas: 0 };
 
 function recalcular(){
   if (!S.rel){ S.datos = null; return; }
@@ -949,7 +960,7 @@ function heroBloque(D){
   ORDEN_ESTADO.forEach(k => {
     const n = D.porEstado[k];
     const b = h('button', { type: 'button', 'aria-label': `${ETIQ[k]}: ${n} jefes (${pctTexto(n, totalJ)}%). Ver la lista`,
-      onclick: () => { S.filtro = k; S.mostrar = 50; pintarLista(); $('#lista').scrollIntoView({ behavior: 'smooth', block: 'start' }); } },
+      onclick: () => { S.por = 'lider'; S.filtro = k; S.mostrar = 50; pintarLista(); $('#lista').scrollIntoView({ behavior: 'smooth', block: 'start' }); } },
       icono(k), h('span', { text: ETIQ[k] }), h('span', { class: 'n', text: nf0.format(n) }));
     tip(b, () => [`${nf0.format(n)} jefes`, `${ETIQ[k]} · ${pctTexto(n, totalJ)}% de los jefes`]);
     estados.append(b);
@@ -998,6 +1009,7 @@ function dibujarMosaico(cont, D){
 }
 
 function abrirJefe(j){
+  if (S.por !== 'lider'){ S.por = 'lider'; S.q = ''; const qi = $('#q'); if (qi) qi.value = ''; }
   if (!filtrar(S.datos).includes(j)){ S.filtro = 'todos'; S.q = ''; const qi = $('#q'); if (qi) qi.value = ''; }
   const idx = filtrar(S.datos).indexOf(j); if (idx >= S.mostrar) S.mostrar = idx + 1;
   S.abiertos.add(j.key); pintarLista();
@@ -1018,18 +1030,72 @@ function fichaPromedio(D){
 }
 
 /* ---------- Lista de jefes ---------- */
+// Basta con algunas palabras del nombre, en cualquier orden: "maria garcia" encuentra a María Fernanda García López
+function tokensBusqueda(q){
+  const t = norm(q).split(/[\s-]+/).filter(Boolean);
+  const sinParticulas = t.filter(w => !PARTICULAS.has(w.toLowerCase()));
+  return sinParticulas.length ? sinParticulas : t;
+}
+function coincideNombre(nombre, tokens){
+  if (!tokens.length) return true;
+  const palabras = nombre.split(/[\s-]+/);
+  return tokens.every(t => palabras.some(p => p.startsWith(t)));
+}
+function filtrarSub(D){
+  const q = tokensBusqueda(S.q);
+  return D.jefes.flatMap(j => j.items).filter(i => {
+    if (S.filtroSub === 'pend' && i.resp) return false;
+    if (S.filtroSub === 'eval' && !i.resp) return false;
+    return coincideNombre(i.ks, q);
+  }).sort((a, b) => a.sub.localeCompare(b.sub, 'es') || a.jefe.nombre.localeCompare(b.jefe.nombre, 'es'));
+}
+function sincronizarBusqueda(){
+  const sub = S.por === 'sub';
+  document.querySelectorAll('[data-por]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.por === S.por)));
+  const q = $('#q'); if (q) q.placeholder = sub ? 'Escribe nombre y apellido del técnico o auxiliar' : 'Escribe nombre y apellido del líder';
+  const o = $('#orden'); if (o) o.hidden = sub;
+}
+function filaSubordinado(i){
+  const hecho = !!i.resp;
+  const li = h('li', {}, h('div', { class: 'fsub' + (hecho ? ' clic' : '') },
+    h('span', { class: 'fsub-q' },
+      h('span', { class: 'fsub-nom' }, h('b', { text: i.sub }), h('span', { class: 'jefe-al', text: `Jefe: ${i.jefe.nombre}` })),
+      h('span', { class: 'cargo', text: i.cargo })),
+    h('span', { class: 'res' }, hecho
+      ? [i.resp.ts != null ? fmtDiaHora.format(new Date(i.resp.ts)) : 'Respondida', i.resp.prom != null ? [' · ', h('strong', { text: nf2.format(i.resp.prom) })] : null, h('span', { class: 'ver', text: 'Ver respuesta ›' })]
+      : 'Pendiente')));
+  if (hecho){
+    const f = li.firstChild;
+    f.tabIndex = 0; f.setAttribute('role', 'button'); f.setAttribute('aria-label', `Ver la respuesta de ${i.sub}, evaluado por ${i.jefe.nombre}`);
+    f.addEventListener('click', () => verRespuesta(i));
+    f.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); verRespuesta(i); } });
+  }
+  return li;
+}
+function pintarListaSub(D){
+  const todos = D.jefes.flatMap(j => j.items), hechos = todos.filter(i => i.resp).length;
+  const cuentas = { todos: todos.length, pend: todos.length - hechos, eval: hechos };
+  $('#tabs').replaceChildren(...[['todos', 'Todos'], ['pend', 'Pendientes'], ['eval', 'Ya evaluados']].map(([k, t]) =>
+    h('button', { class: 'tab', type: 'button', 'aria-pressed': String(S.filtroSub === k), onclick: () => { S.filtroSub = k; S.mostrar = 50; S.listaAnim = true; pintarLista(); } }, t, h('span', { text: nf0.format(cuentas[k]) }))));
+  const lista = filtrarSub(D), ul = $('#ul'); ul.replaceChildren();
+  ul.className = 'lista' + (S.listaAnim ? ' anima' : ''); S.listaAnim = false;
+  $('#conteo').replaceChildren(h('span', { text: `Mostrando ${nf0.format(lista.length)} de ${nf0.format(todos.length)} técnicos o auxiliares` }),
+    h('span', { class: 'acc' }, h('button', { class: 'lnk', type: 'button', disabled: !lista.length, onclick: copiarNombres, text: 'Copiar nombres' }), h('button', { class: 'lnk', type: 'button', disabled: !lista.length, onclick: descargarCSV, text: 'Descargar CSV' })));
+  if (!lista.length){ ul.append(h('li', { class: 'vacio', text: S.q ? 'Nadie coincide con esa búsqueda.' : 'No hay personas en este grupo.' })); return; }
+  ul.append(...lista.slice(0, S.mostrar).map(filaSubordinado));
+  if (lista.length > S.mostrar){
+    const quedan = lista.length - S.mostrar;
+    ul.append(h('li', { class: 'mas' }, h('button', { class: 'btn line', type: 'button', text: `Mostrar ${Math.min(50, quedan)} más (quedan ${nf0.format(quedan)})`, onclick: () => { S.mostrar += 50; pintarLista(); } })));
+  }
+}
 function filtrar(D){
-  const q = norm(S.q);
+  const q = tokensBusqueda(S.q);
   let l = D.jefes.filter(j => {
     if (S.filtro === 'faltan' && j.estado === 'ok') return false;
     if (S.filtro === 'sin' && j.estado !== 'sin') return false;
     if (S.filtro === 'curso' && j.estado !== 'curso') return false;
     if (S.filtro === 'ok' && j.estado !== 'ok') return false;
-    if (q){
-      if (S.por === 'lider'){ j._viaSub = false; return j.nk.includes(q); }
-      j._viaSub = j.items.some(i => i.ks.includes(q)); return j._viaSub;
-    }
-    j._viaSub = false; return true;
+    return coincideNombre(j.nk, q);
   });
   const cmp = {
     pendientes: (a, b) => b.pend - a.pend || a.nombre.localeCompare(b.nombre, 'es'),
@@ -1042,14 +1108,11 @@ function filtrar(D){
 
 function cuerpo(D){
   const tabs = h('div', { class: 'tabs', role: 'group', 'aria-label': 'Filtrar jefes por estado', id: 'tabs' });
-  const textoBusqueda = () => S.por === 'lider' ? 'Escribe el nombre del líder' : 'Escribe el nombre del técnico o auxiliar';
   const buscar = h('label', { class: 'buscar' }, h('span', { class: 'sr', text: 'Buscar por nombre' }),
-    h('input', { type: 'search', id: 'q', placeholder: textoBusqueda(), autocomplete: 'off', value: S.q }));
+    h('input', { type: 'search', id: 'q', autocomplete: 'off', value: S.q }));
   const seg = h('div', { class: 'seg', role: 'group', 'aria-label': 'Buscar por' }, h('span', { text: 'Buscar por' }), h('div', { class: 'seg-in' },
     [['lider', 'Líder'], ['sub', 'Técnico o auxiliar']].map(([k, t]) => h('button', { type: 'button', 'data-por': k, 'aria-pressed': String(S.por === k), text: t, onclick: () => {
-      S.por = k; S.mostrar = 50; S.listaAnim = true;
-      seg.querySelectorAll('[data-por]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.por === k)));
-      $('#q').placeholder = textoBusqueda(); pintarLista(); $('#q').focus(); } }))));
+      S.por = k; S.mostrar = 50; S.listaAnim = true; pintarLista(); $('#q').focus(); } }))));
   const sel = h('select', { id: 'orden', 'aria-label': 'Ordenar' },
     ...[['pendientes', 'Más pendientes primero'], ['menor', 'Menor avance primero'], ['mayor', 'Mayor avance primero'], ['nombre', 'Nombre (A–Z)']]
       .map(([v, t]) => h('option', { value: v, text: t, selected: S.orden === v })));
@@ -1071,6 +1134,8 @@ function cuerpo(D){
 
 function pintarLista(){
   const D = S.datos; if (!D || !$('#ul')) return;
+  sincronizarBusqueda();
+  if (S.por === 'sub'){ pintarListaSub(D); return; }
   const cuentas = { faltan: D.porEstado.sin + D.porEstado.curso, sin: D.porEstado.sin, curso: D.porEstado.curso, ok: D.porEstado.ok, todos: D.jefes.length };
   const tabs = $('#tabs'); tabs.replaceChildren(...[['todos', 'Todos'], ['faltan', 'Faltan por responder'], ['sin', 'Sin iniciar'], ['curso', 'En curso'], ['ok', 'Completos']].map(([k, t]) =>
     h('button', { class: 'tab', type: 'button', 'aria-pressed': String(S.filtro === k), onclick: () => { S.filtro = k; S.mostrar = 50; S.listaAnim = true; pintarLista(); } }, t, h('span', { text: nf0.format(cuentas[k]) }))));
@@ -1086,7 +1151,7 @@ function pintarLista(){
   }
   const frag = document.createDocumentFragment();
   for (const j of lista.slice(0, S.mostrar)){
-    const d = h('details', { class: `jefe st-${j.estado}`, 'data-key': j.key, open: S.abiertos.has(j.key) || (!!S.q && j._viaSub) });
+    const d = h('details', { class: `jefe st-${j.estado}`, 'data-key': j.key, open: S.abiertos.has(j.key) });
     d.addEventListener('toggle', () => { if (d.open) S.abiertos.add(j.key); else S.abiertos.delete(j.key); });
     const pct = pctTexto(j.hechas, j.total);
     d.append(h('summary', {},
@@ -1095,9 +1160,8 @@ function pintarLista(){
       h('span', { class: 'der' }, h('span', { class: 'mini', 'aria-hidden': 'true', style: `--w:${j.pct.toFixed(1)}%` }, h('i')), (() => { const c = h('span', { class: 'chip' }, icono(j.estado), ETIQ[j.estado]); return c; })())));
     const subs = h('div', { class: 'subs' });
     const pen = j.items.filter(i => !i.resp), hec = j.items.filter(i => i.resp);
-    const qn = norm(S.q);
     const fila = (i, hecho) => {
-      const li = h('li', { class: 'sub' + (hecho ? ' clic' : '') + (S.por === 'sub' && qn && i.ks.includes(qn) ? ' coincide' : '') },
+      const li = h('li', { class: 'sub' + (hecho ? ' clic' : '') },
         h('span', {}, h('b', { text: i.sub }), h('span', { class: 'cargo', text: i.cargo })),
         h('span', { class: 'res' }, hecho
           ? [i.resp.ts != null ? fmtDiaHora.format(new Date(i.resp.ts)) : 'Respondida', i.resp.prom != null ? [' · ', h('strong', { text: nf2.format(i.resp.prom) })] : null, h('span', { class: 'ver', text: 'Ver respuesta ›' })]
@@ -1122,6 +1186,15 @@ function pintarLista(){
 
 function csvCampo(v){ const s = String(v ?? ''); return /[";\n\r]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; }
 function descargarCSV(){
+  if (S.por === 'sub'){
+    const l = filtrarSub(S.datos);
+    const f = [['Técnico o auxiliar', 'Cargo', 'Jefe', 'Estado', 'Promedio']];
+    l.forEach(i => f.push([i.sub, i.cargo, i.jefe.nombre, i.resp ? 'Evaluado' : 'Pendiente', i.resp && i.resp.prom != null ? nf2.format(i.resp.prom) : '']));
+    const b = new Blob(['\uFEFF' + f.map(x => x.map(csvCampo).join(';')).join('\r\n')], { type: 'text/csv;charset=utf-8' });
+    const a = h('a', { href: URL.createObjectURL(b), download: `tecnicos-auxiliares-${S.filtroSub}-${hoyBogota()}.csv` });
+    document.body.append(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+    aviso(`CSV con ${l.length} personas descargado.`); return;
+  }
   const lista = filtrar(S.datos);
   const filas = [['Jefe', 'Estado', 'Respondidas', 'Total', 'Porcentaje', 'Falta por evaluar']];
   lista.forEach(j => filas.push([j.nombre, ETIQ[j.estado], j.hechas, j.total, pctTexto(j.hechas, j.total) + '%', j.items.filter(i => !i.resp).map(i => i.sub).join(' / ')]));
@@ -1131,7 +1204,7 @@ function descargarCSV(){
   aviso(`CSV con ${lista.length} jefes descargado.`);
 }
 async function copiarNombres(){
-  const txt = filtrar(S.datos).map(j => j.nombre).join('\n');
+  const txt = (S.por === 'sub' ? filtrarSub(S.datos).map(i => i.sub) : filtrar(S.datos).map(j => j.nombre)).join('\n');
   try{ await navigator.clipboard.writeText(txt); aviso('Nombres copiados al portapapeles.'); }catch(_){ aviso('No pude copiar. Usa "Descargar CSV".'); }
 }
 
@@ -1249,7 +1322,7 @@ function revision(D){
 }
 
 /* ==========================================================================
-   Accesos: mejores y peores, respuestas en gráfica y qué pregunta es cuál
+   Accesos: top calificaciones, respuestas en gráfica y qué pregunta es cuál
    ========================================================================== */
 const reduceMov = () => matchMedia('(prefers-reduced-motion:reduce)').matches;
 const fmtCalif = v => v == null ? '—' : (Number.isInteger(v) ? String(v) : nf2.format(v));
@@ -1272,7 +1345,7 @@ function animarCifras(D){
 }
 
 const ACCESOS = [
-  ['ranking', 'trofeo', 'Mejores y peores calificaciones'],
+  ['ranking', 'trofeo', 'Top calificaciones'],
   ['grafica', 'linea', 'Ver respuestas en gráfica'],
   ['preguntas', 'libro', 'Qué pregunta es cuál']
 ];
@@ -1302,7 +1375,7 @@ function pintarSeccion(){
   if (S.seccion === 'grafica'){ slot.append(seccionGrafica(D)); pintarGraficaElegida(); }
 }
 
-/* ---------- Mejores y peores ---------- */
+/* ---------- Top calificaciones ---------- */
 const clavePuntaje = it => Math.round(it.resp.prom * 100);
 function rankingOrdenado(D){
   const mejor = S.rkOrden === 'mejor';
@@ -1342,8 +1415,8 @@ function seccionRanking(D){
   const repintar = () => { S.seccion = 'ranking'; pintarSeccion(); };
   const ul = h('ul', { class: 'rk-lista' }, lista.slice(0, S.rkMostrar).map(it => h('li', {}, filaPersona(it, D))));
   const quedan = lista.length - S.rkMostrar;
-  return h('section', { class: 'seccion', 'aria-label': 'Mejores y peores calificaciones' },
-    cabSeccion('Mejores y peores calificaciones', `${nf0.format(lista.length)} personas evaluadas, según su promedio. Las que tienen el mismo promedio comparten puesto. Toca una para ver su respuesta.`, filtroRanking(repintar)),
+  return h('section', { class: 'seccion', 'aria-label': 'Top calificaciones' },
+    cabSeccion('Top calificaciones', `${nf0.format(lista.length)} personas evaluadas, según su promedio. Las que tienen el mismo promedio comparten puesto. Toca una para ver su respuesta.`, filtroRanking(repintar)),
     lista.length ? ul : h('p', { class: 'vacio', text: 'Aparecerá cuando haya cuestionarios respondidos.' }),
     quedan > 0 ? h('div', { class: 'mas' }, h('button', { class: 'btn line', type: 'button', text: `Mostrar ${Math.min(30, quedan)} más (quedan ${nf0.format(quedan)})`, onclick: () => { S.rkMostrar += 30; pintarSeccion(); } })) : null);
 }

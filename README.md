@@ -9,10 +9,10 @@ Es una sola página (`index.html`, sin servidor ni dependencias). **No guarda ni
 - Porcentaje de cuestionarios respondidos (respondidos de total), cuántos faltan, cuántos llegaron hoy y en los últimos 7 días, y los días que faltan para el cierre.
 - Un mapa de cuestionarios: un cuadro por cuestionario, agrupados en un bloque por jefe. Los respondidos se ven en amarillo roble y los pendientes, apagados. Al tocar un bloque se abre ese jefe en la lista.
 - Promedio general, promedio por pregunta y por bloque (Gestión, Servicio, Seguridad y salud en el trabajo), y respuestas por día.
-- Jefes agrupados en Sin iniciar, En curso y Completos. La lista arranca en Todos y se busca por líder o por técnico o auxiliar, según lo que se elija antes de escribir.
+- Jefes agrupados en Sin iniciar, En curso y Completos. La lista arranca en Todos y se busca por líder o por técnico o auxiliar, según lo que se elija antes de escribir. Basta con el primer nombre y un apellido, en cualquier orden. Por técnico o auxiliar la lista muestra solo a esas personas, cada una con el nombre de su jefe al lado.
 - Al abrir un jefe: quién falta por evaluar y quién ya fue evaluado (con fecha y promedio), y al lado del nombre el porcentaje de evaluaciones respondidas.
 - Al tocar a alguien ya evaluado: su respuesta completa, con todas las preguntas, su gráfica y un botón para descargarla en PDF. El PDF se arma en el navegador.
-- Mejores y peores calificaciones: personas ordenadas por promedio, de mejor a peor por defecto; el ícono de filtro cambia el orden.
+- Top calificaciones: personas ordenadas por promedio, de mejor a peor por defecto; el ícono de filtro cambia el orden.
 - Respuestas en gráfica: línea con la calificación en el eje vertical y la pregunta en el horizontal, para el promedio de todos o para una persona.
 - Qué pregunta es cuál: el texto completo de G1 a SST3.
 - Botones para copiar los nombres de los jefes que faltan o descargarlos en CSV, para armar los recordatorios.
