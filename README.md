@@ -8,6 +8,8 @@ El tablero tiene tres secciones que se cambian con el selector del encabezado (o
 
 En SST y ELT cada persona puede responder varias veces. Por defecto cuenta su envío más reciente; el selector "Contar" permite usar todos. En prioridades y habilidades, el primer lugar vale 3 puntos, el segundo 2 y el tercero 1. Cada sección tiene la lista de quién respondió y quién falta, con botones para copiar correos o nombres de pendientes y para descargar las respuestas en CSV.
 
+Al entrar aparece una pantalla de carga corta con el patrón UN del brandbook de la universidad. El mismo patrón va de fondo detrás de los mapas y en la transición entre secciones (está extraído del brandbook 2024 y se dibuja como SVG dentro de `index.html`).
+
 El favorito *Cargar al tablero* lee las seis listas a la vez. Si la persona tenía el favorito anterior, debe reemplazarlo por el nuevo para que traiga también SST y ELT. Si una lista de los sondeos no existe, el favorito la omite.
 
 SST y ELT van dentro de un Shadow DOM, al final de `index.html` (bloques `window.APPS.sst` y `window.APPS.elt`), para que sus estilos no se mezclen con los de la evaluación. Usan la tipografía Montserrat.
