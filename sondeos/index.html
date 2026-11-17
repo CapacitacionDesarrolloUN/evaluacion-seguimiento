@@ -781,7 +781,7 @@ function cifras(items){ return h('div', { class: 'cifras' }, items.map(i => h('d
 function calor(filas, cols, valor, opts = {}){
   const max = Math.max(1, ...filas.flatMap(f => cols.map(c => valor(f, c) ?? 0)));
   const g = h('div', { class: 'calor', style: { 'grid-template-columns': `${opts.anchoFila || '84px'} repeat(${cols.length},minmax(0,1fr))` } });
-  g.append(h('span'), ...cols.map(c => h('span', { class: 'cab', title: c }, h('span', { class: 'l', text: c }), h('span', { class: 'c', text: c.slice(0, 3) })))));
+  g.append(h('span'), ...cols.map(c => h('span', { class: 'cab', title: c }, h('span', { class: 'l', text: c }), h('span', { class: 'c', text: c.slice(0, 3) }))));
   let k = 0;
   filas.forEach(f => {
     g.append(h('span', { class: 'fil', text: f }));
