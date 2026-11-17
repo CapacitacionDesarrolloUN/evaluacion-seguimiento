@@ -4,7 +4,7 @@ El tablero tiene tres secciones que se cambian con el selector del encabezado (o
 
 - **Evaluación de desempeño** (lo que se describe abajo).
 - **SST**: resultados del sondeo de formación en Seguridad y Salud en el Trabajo 2027 (listas SST_Personas y SST_Respuestas). Muestra el avance por persona y área, las categorías de riesgo con sus riesgos específicos, los temas pedidos, un podio de prioridades, los colaboradores por área, un mapa de días y jornadas y las observaciones.
-- **ELT**: resultados del sondeo de la Escuela de Liderazgo Transformador 2027 (listas ELT_Personas y ELT_Respuestas). Muestra el avance, las temáticas, un podio de habilidades, formatos y frecuencia, un cruce de franja y día, periodo, modalidad, la ELT 2026 y las sugerencias.
+- **ELT**: resultados del sondeo de la Escuela de Liderazgo Transformador 2027 (listas ELT_Personas y ELT_Respuestas). Muestra el avance en un mapa horizontal que se desliza (rueda del mouse, arrastrando o con las flechas), las temáticas, un podio de habilidades, formatos y frecuencia, un cruce de franja y día, periodo, modalidad, la ELT 2026 y las sugerencias.
 
 En SST y ELT cada persona puede responder varias veces. Por defecto cuenta su envío más reciente; el selector "Contar" permite usar todos. En prioridades y habilidades, el primer lugar vale 3 puntos, el segundo 2 y el tercero 1. Cada sección tiene la lista de quién respondió y quién falta, con botones para copiar correos o nombres de pendientes y para descargar las respuestas en CSV.
 
