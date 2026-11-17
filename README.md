@@ -1,4 +1,17 @@
-# Seguimiento de la evaluación de desempeño
+# Seguimiento de la evaluación de desempeño y sondeos 2027
+
+El tablero tiene tres secciones que se cambian con el selector del encabezado (o con Alt+1, Alt+2 y Alt+3), con una transición animada:
+
+- **Evaluación de desempeño** (lo que se describe abajo).
+- **SST**: resultados del sondeo de formación en Seguridad y Salud en el Trabajo 2027 (listas SST_Personas y SST_Respuestas). Muestra el avance por persona y área, las categorías de riesgo con sus riesgos específicos, los temas pedidos, un podio de prioridades, los colaboradores por área, un mapa de días y jornadas y las observaciones.
+- **ELT**: resultados del sondeo de la Escuela de Liderazgo Transformador 2027 (listas ELT_Personas y ELT_Respuestas). Muestra el avance, las temáticas, un podio de habilidades, formatos y frecuencia, un cruce de franja y día, periodo, modalidad, la ELT 2026 y las sugerencias.
+
+En SST y ELT cada persona puede responder varias veces. Por defecto cuenta su envío más reciente; el selector "Contar" permite usar todos. En prioridades y habilidades, el primer lugar vale 3 puntos, el segundo 2 y el tercero 1. Cada sección tiene la lista de quién respondió y quién falta, con botones para copiar correos o nombres de pendientes y para descargar las respuestas en CSV.
+
+El favorito *Cargar al tablero* lee las seis listas a la vez. Si la persona tenía el favorito anterior, debe reemplazarlo por el nuevo para que traiga también SST y ELT. Si una lista de los sondeos no existe, el favorito la omite.
+
+SST y ELT van dentro de un Shadow DOM, al final de `index.html` (bloques `window.APPS.sst` y `window.APPS.elt`), para que sus estilos no se mezclen con los de la evaluación. Usan la tipografía Montserrat.
+
 
 Tablero para ver cómo va la campaña de evaluación de desempeño de la Universidad del Norte: qué porcentaje de cuestionarios está respondido, qué líderes de departamento faltan, quién falta dentro de cada equipo y cuál es el promedio de las respuestas.
 
