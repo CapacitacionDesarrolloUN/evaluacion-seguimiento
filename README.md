@@ -14,6 +14,8 @@ El favorito *Cargar al tablero* lee las seis listas a la vez. Si la persona ten�
 
 SST y ELT van dentro de un Shadow DOM, al final de `index.html` (bloques `window.APPS.sst` y `window.APPS.elt`), para que sus estilos no se mezclen con los de la evaluación. Usan la tipografía Montserrat.
 
+Diseño: sigue la línea del brandbook Uninorte 2024, igual que la agenda, Cursos abiertos y el álbum de capacitaciones. Todo va en Montserrat, con rojo #960A11, negro #151515 y blanco, y dorado #B78B1E, amarillo #FFCC00 y arena #CFC493 como complementos. Cada sección tiene su banda: Evaluación en rojo con amarillo, SST en negro con amarillo y ELT en rojo oscuro con arena y dorado. Las superficies son planas: sin degradados, sin sombras y con esquinas rectas.
+
 
 Tablero para ver cómo va la campaña de evaluación de desempeño de la Universidad del Norte: qué porcentaje de cuestionarios está respondido, qué líderes de departamento faltan, quién falta dentro de cada equipo y cuál es el promedio de las respuestas.
 
